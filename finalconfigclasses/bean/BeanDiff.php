@@ -74,7 +74,7 @@ class BeanDiff extends BeanUpdateEvent {
 	{
 		if($this->updateSet === Collections::getInstance()->EMPTY_SET)
 			$this->updateSet = new LinkedHashSet();
-		$this->updateSet.add($propertyupdate);
+		$this->updateSet->add($propertyupdate);
 		$this->updateList = null;
 	}
 	

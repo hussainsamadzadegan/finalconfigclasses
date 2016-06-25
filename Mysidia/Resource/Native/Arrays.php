@@ -18,7 +18,7 @@ use SplFixedArray;
  *
  * @author Ordland
  */
-final class Arrays extends SplFixedArray implements Cloneable, Comparable, Hashable, Invokable, Stringable, Valuable, Serializable
+final class Arrays extends SplFixedArray implements Cloneable, Comparable, Hashable, Invokable, Stringable, Valuable, Serializable, Objective
 {
     use Traits\FlagsTrait;
 
@@ -36,7 +36,7 @@ final class Arrays extends SplFixedArray implements Cloneable, Comparable, Hasha
     /**
      * {@inheritdoc}
      */
-    public function equals($array)
+    public function equals(Objective $array)
     {
         if (!($array instanceof Arrays)) {
             throw new InvalidArgumentException("Argument array must be an instance of Arrays");
@@ -63,6 +63,10 @@ final class Arrays extends SplFixedArray implements Cloneable, Comparable, Hasha
         return spl_object_hash($this);
     }
 
+    public function hashCode() {
+    	return $this->hash();	
+    }
+    
     /**
      * {@inheritdoc}
      */

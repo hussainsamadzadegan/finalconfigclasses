@@ -16,7 +16,7 @@ use Serializable;
  *
  * @author Ordland
  */
-abstract class Object implements Cloneable, Coercible, Comparable, Hashable, Invokable, Stringable, Valuable, Serializable
+abstract class Object implements Cloneable, Coercible, Comparable, Hashable, Invokable, Stringable, Valuable, Serializable, Objective
 {
     use Traits\FlagsTrait;
 
@@ -78,6 +78,10 @@ abstract class Object implements Cloneable, Coercible, Comparable, Hashable, Inv
     public function hash()
     {
         return spl_object_hash($this);
+    }
+    
+    public function hashCode() {
+    	return $this->hash();
     }
 
     /**

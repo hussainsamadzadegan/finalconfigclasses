@@ -5,6 +5,7 @@ namespace finalconfigclasses\bean;
 use finalconfigclasses\bean\BeanDiff;
 use finalconfigclasses\bean\misc\PropertyChangeSupport;
 use finalconfigclasses\bean\misc\BeanUpdateSupport;
+use finalconfigclasses\cfg\ConfigBeanDiff;
 
 //require __DIR__ . '/../../vendor/autoload.php';
 spl_autoload_register(function($className)
@@ -32,3 +33,7 @@ echo $x;
 
 $bus = new BeanUpdateSupport($x);
 echo $x;
+echo '\n';
+$cbeandiff = new ConfigBeanDiff($var1, $var2);
+$cbeandiff->recordAddition("prop2", "val2", true);
+echo $cbeandiff;

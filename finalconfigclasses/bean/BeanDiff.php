@@ -44,14 +44,14 @@ class BeanDiff extends BeanUpdateEvent {
 	
 	public function size()
 	{
-		return $this->updateSet.size();
+		return $this->updateSet->size();
 	}
 	
 	public /*List<PropertyUpdate>*/ function getUpdateList()
 	{
 		if($this->updateList == null) {
 			$this->updateList = new ArrayList()/*<PropertyUpdate>*/;
-			$this->updateList.addAll($this->updateSet);
+			$this->updateList->addAll($this->updateSet);
 		}
 		return $this->updateList;
 	}

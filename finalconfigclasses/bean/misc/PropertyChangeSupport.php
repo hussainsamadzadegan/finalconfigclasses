@@ -124,7 +124,7 @@ final class PropertyChangeSupport extends \Threaded
 	public function fireIndexedPropertyChange($propertyName, $index,
 			$oldValue, $newValue)
 	{
-		firePropertyChange(new IndexedPropertyChangeEvent
+		firePropertyChange2(new IndexedPropertyChangeEvent
 				($this->source, $propertyName, $oldValue, $newValue, $index));
 	}
 

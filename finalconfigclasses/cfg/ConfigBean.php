@@ -61,7 +61,7 @@ interface ConfigBean extends DiffableBean, SettableBean/*, ICloneable, ISerializ
 	 * 
 	 * shallow clone.
 	 */
-	public function cloneThis(ConfigBean $parentOfCloned);
+	public function cloneThis2(ConfigBean $parentOfCloned);
 	 
 	/**
 	 * deep clone(all descendants would be cloned).
@@ -71,21 +71,21 @@ interface ConfigBean extends DiffableBean, SettableBean/*, ICloneable, ISerializ
 	/**
 	 * deep clone(all descendants would be cloned).
 	 */
-	public function cloneSubtree(ConfigBean $parentOfCloned);
+	public function cloneSubtree2(ConfigBean $parentOfCloned);
 	 
 	/**
 	 * This method is useful for UI.
 	 * if you set the cloneDepth to zero then you
 	 * would get the result of clone() method.
 	 */
-	public function cloneSubtree($cloneDepth);
+	public function cloneSubtree3($cloneDepth);
 
 	/**
 	 * This method is useful for UI.
 	 * if you set the cloneDepth to zero then you
 	 * would get the result of clone() method.
 	 */
-	public function cloneSubtree(ConfigBean $parentOfCloned, $cloneDepth);
+	public function cloneSubtree4(ConfigBean $parentOfCloned, $cloneDepth);
 
 	/**
 	 * Visits this config bean and all its sub beans(related beans). This method provides a simple

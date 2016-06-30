@@ -24,4 +24,16 @@ abstract class Utils {
 		return $h;
 	}
 	
+	public static function isArrayOfType($array, $reflectionclass) {
+		if(!is_array($array))
+			return false;
+		$result = true;
+		for($i = 0; $i < count($array); $i++)
+			if(is_object($array[$i]))
+				$result = $result && $reflectionclass->isInstance($array[$i]);
+			else
+				$result = false;
+		return $result;
+	}
+	
 }

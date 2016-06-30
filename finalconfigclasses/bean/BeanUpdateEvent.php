@@ -17,7 +17,7 @@ abstract class BeanUpdateEvent extends EventObject {
 	}
 	
 	public function getSourceBean() {
-		return getSource();
+		return $this->getSource();
 	}
 	
 	public function getProposedBean() {

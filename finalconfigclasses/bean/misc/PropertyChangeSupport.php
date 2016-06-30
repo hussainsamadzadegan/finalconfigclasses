@@ -5,7 +5,7 @@ namespace finalconfigclasses\bean\misc;
 /**
  * A class which broadcast changes to interested listeners.
  */
-final class PropertyChangeSupport extends \Stackable
+final class PropertyChangeSupport extends \Threaded
 {
 
 	/**
@@ -105,11 +105,11 @@ final class PropertyChangeSupport extends \Stackable
 				if ($oldValue != null && $newValue != null && $oldValue == $newValue) {
 					return;
 				}
-				firePropertyChange(new PropertyChangeEvent($this->source, $propertyName,
+				firePropertyChange2(new PropertyChangeEvent($this->source, $propertyName,
 						$oldValue, $newValue));
 	}
 
-	public function firePropertyChange(PropertyChangeEvent $evt) {
+	public function firePropertyChange2(PropertyChangeEvent $evt) {
 		$oldValue = $evt->getOldValue();
 		$newValue = $evt->getNewValue();
 		$propertyName = $evt->getPropertyName();

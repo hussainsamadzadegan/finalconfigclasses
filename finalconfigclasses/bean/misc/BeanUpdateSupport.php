@@ -5,7 +5,7 @@ namespace finalconfigclasses\bean\misc;
 use finalconfigclasses\bean\BeanUpdateListener;
 use finalconfigclasses\bean\BeanUpdateEvent;
 
-final class BeanUpdateSupport extends \Stackable
+final class BeanUpdateSupport extends \Threaded
 {
 
 	/**

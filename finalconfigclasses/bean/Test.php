@@ -11,6 +11,9 @@ use finalconfigclasses\cfg\ConfigBean;
 use finalconfigclasses\bean\misc\PropertyChangeListener;
 use finalconfigclasses\cfg\misc\NodeChangeListener;
 use finalconfigclasses\cfg\ConfigBeanVisitor;
+use Mysidia\Resource\Utility\Hash;
+use Mysidia\Resource\Collection\HashMap;
+use Mysidia\Resource\Native\StringWrapper;
 
 //require __DIR__ . '/../../vendor/autoload.php';
 spl_autoload_register(function($className)
@@ -25,6 +28,15 @@ spl_autoload_register(function($className)
 	
 });
 
+$hashmap = new HashMap();
+$hashmap->put(new StringWrapper("a"), new StringWrapper("b"));
+$hashmap->put(new StringWrapper("c"), new StringWrapper("d"));
+
+$itr = $hashmap->valueIterator();
+while($itr->hasNext()) {
+	$ent = $itr->nextEntry();
+	echo $ent->getKey()->value() . " -> " . $ent->getValue()->value() . "\n";
+}
 
 $var1 = "source1";
 $var2 = "proposed1";

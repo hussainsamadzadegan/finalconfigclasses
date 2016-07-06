@@ -36,4 +36,17 @@ abstract class Utils {
 		return $result;
 	}
 	
+	public static function cloneArray($array) {
+		if(!is_array($array))
+			throw new \InvalidArgumentException("passed argument is not array.");
+		$result = array();
+		for($i = 0; $i < count($array); $i++)
+			$result[$i] = $array[$i];
+		return $result;
+	}
+	
+	public static function parseBoolean($str) {
+		return (($str != null) && strcasecmp($str, "true") == 0);
+	}
+	
 }

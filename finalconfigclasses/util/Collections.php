@@ -7,6 +7,7 @@ use Mysidia\Resource\Collection\CollectionIterator;
 use Mysidia\Resource\Exception\NosuchElementException;
 use Mysidia\Resource\Exception\UnsupportedOperationException;
 use Mysidia\Resource\Native\Objective;
+use Mysidia\Resource\Collection\HashMap;
 
 class Collections {
 	public $EMPTY_SET;
@@ -57,6 +58,14 @@ class Collections {
 	 */
 	private function __wakeup()
 	{
+	}
+	
+	public static function cloneHashMap(HashMap $hashmap) {
+		if($hashmap == null)
+			return null;
+		$result = new HashMap();
+		$result->putAll($hashmap);
+		return $result;
 	}
 	
 }

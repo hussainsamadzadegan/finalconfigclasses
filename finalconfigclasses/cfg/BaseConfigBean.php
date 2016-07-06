@@ -7,6 +7,8 @@ use finalconfigclasses\bean\misc\PropertyChangeSupport;
 use finalconfigclasses\cfg\misc\NodeChangeSupport;
 use finalconfigclasses\bean\misc\BeanUpdateSupport;
 use finalconfigclasses\util\Utils;
+use finalconfigclasses\util\Collections;
+use Mysidia\Resource\Collection\ArrayList;
 
 abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	/** The unique ID of bean(needed for clone and merge algorithms). */
@@ -216,167 +218,175 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	//
 	////////////////////////////////////////////////////////////////////////////
 	
-	public final ConfigBean cloneThis() {
-		readLock();
+	public final function cloneThis() {
+		$this->readLock();
 		try {
-			return _clone(null, 0);
+			return $this->_clone(null, 0);
 		} finally {
-			readUnlock();
+			$this->readUnlock();
 		}
 	}
 	
-	public final ConfigBean cloneThis2(final ConfigBean parentOfCloned) {
-		readLock();
+	public final function cloneThis2(ConfigBean $parentOfCloned) {
+		$this->readLock();
 		try {
-			return _clone(parentOfCloned, 0);
+			return $this->_clone($parentOfCloned, 0);
 		} finally {
-			readUnlock();
+			$this->readUnlock();
 		}
 	}
 	
-	public final ConfigBean cloneSubtree() {
-		readLock();
+	public final function cloneSubtree() {
+		$this->readLock();
 		try {
-			return _clone(null, Integer.MAX_VALUE);
+			return $this->_clone(null, PHP_INT_MAX);
 		} finally {
-			readUnlock();
+			$this->readUnlock();
 		}
 	}
 	
-	public final ConfigBean cloneSubtree2(final ConfigBean parentOfCloned) {
-		readLock();
+	public final function  cloneSubtree2(ConfigBean $parentOfCloned) {
+		$this->readLock();
 		try {
-			return _clone(parentOfCloned, Integer.MAX_VALUE);
+			return $this->_clone($parentOfCloned, PHP_INT_MAX);
 		} finally {
-			readUnlock();
+			$this->readUnlock();
 		}
 	}
 	
-	public final ConfigBean cloneSubtree3(int cloneDepth) {
-		readLock();
+	public final function cloneSubtree3($cloneDepth) {
+		$this->readLock();
 		try {
-			return _clone(null, cloneDepth);
+			return $this->_clone(null, $cloneDepth);
 		} finally {
-			readUnlock();
+			$this->readUnlock();
 		}
 	}
 	
-	public final ConfigBean cloneSubtree4(final ConfigBean parentOfCloned, int cloneDepth) {
-		readLock();
+	public final function  cloneSubtree4(ConfigBean $parentOfCloned, $cloneDepth) {
+		$this->readLock();
 		try {
-			return _clone(parentOfCloned, cloneDepth);
+			return $this->_clone($parentOfCloned, $cloneDepth);
 		} finally {
-			readUnlock();
+			$this->readUnlock();
 		}
 	}
 	
-	protected final ConfigBean _clone(final ConfigBean parentOfCloned, int cloneDepth) {
-		BaseConfigBean cloneObj = null;
+	protected final function _clone(ConfigBean $parentOfCloned, $cloneDepth) {
+		$cloneObj = null;
 		try {
-			if(parentOfCloned != null && parentOfCloned == this) {
-				System.out.println("The parent of config bean can not be the bean itself!");
+			if($parentOfCloned != null && $parentOfCloned === this) {
+				echo "The parent of config bean can not be the bean itself!";
 				return null;
 			}
+			$clazz = new \ReflectionClass(get_class($this));
+			$c = $clazz->getConstructor();	
 			//using full constructor to instantiate cloned object...
-			Constructor c = getClass().getConstructor(new Class[] {String.class, HashMap.class, HashMap.class,
-			ConfigBean.class, String.class, String.class, ReentrantReadWriteLock.class, String.class, String.class, String.class});
-			HashMap<String, Object> cloneDefValue = null;
-			if(_getDefValue() != null)
-				cloneDefValue = (HashMap<String, Object>)_getDefValue().clone();
-				HashMap<String, Boolean> cloneDynaProp = null;
-				if(dynaProp != null)
-					cloneDynaProp = (HashMap<String, Boolean>)dynaProp.clone();
-					cloneObj = (BaseConfigBean)c.newInstance(_getBeanID(), cloneDefValue,
-							cloneDynaProp,
-							parentOfCloned,
-							propertiesFile,
-							lockID,
-							null,//we do not place locks on cloned version
-							document,
-							name,
-							keyPrefix);
+			//Constructor c = getClass().getConstructor(new Class[] {String.class, HashMap.class, HashMap.class,
+			//ConfigBean.class, String.class, String.class, ReentrantReadWriteLock.class, String.class, String.class, String.class});
+			/*HashMap<String, Object>*/ $cloneDefValue = null;
+			if($this->_getDefValue() != null)
+				$cloneDefValue = Collections::cloneHashMap($this->_getDefValue());
+				/*HashMap<String, Boolean>*/ $cloneDynaProp = null;
+				if($this->dynaProp != null)
+					$cloneDynaProp = Collections::cloneHashMap($this->dynaProp);
+					
+					$cloneObj = /*(BaseConfigBean)*/$c->invokeArgs(null, $this->_getBeanID(), $cloneDefValue,
+							$cloneDynaProp,
+							$parentOfCloned,
+							$this->propertiesFile,
+							$this->lockID,
+							//null,//we do not place locks on cloned version
+							$this->document,
+							$this->name,
+							$this->keyPrefix);
 						
-					cloneObj._getSetProp().putAll((HashMap<String, Object>)_getSetProp());
+					$cloneObj->_getSetProp()->putAll($this->_getSetProp());
 						
 					//processing Attr map
 					//cloneObj._getAttr().putAll(_getAttr());
-					for(Map.Entry<String, Object> ent : _getAttr().entrySet()) {
-						String key = ent.getKey();
-						Object obj = ent.getValue();
-						if(obj == null) {
-							cloneObj._getAttr().put(key, null);
+					$itr = $this->_getAttr()->valueIterator();
+					while($itr->hasNext()) {
+						$ent = $itr->nextEntry();
+						
+						$key = $ent->getKey();
+						$obj = $ent->getValue();
+						if($obj == null) {
+							$cloneObj->_getAttr()->put($key, null);
 						} else {
-							if(obj.getClass().isArray()) {
-								int length = Array.getLength(obj);
-								Object clonedArr = Array.newInstance(obj.getClass().getComponentType(), length);
-								for(int i = 0 ; i < length; i++) {
-									Array.set(clonedArr, i, Array.get(obj, i));
+							if(is_array($obj)) {
+								$length = count($obj);
+								$clonedArr = array();/* = Array.newInstance(obj.getClass().getComponentType(), length);*/
+								for($i = 0 ; $i < $length; $i++) {
+									$clonedArr[$i] = $obj[$i];
+									//Array.set(clonedArr, i, Array.get(obj, i));
 								}
-								cloneObj._getAttr().put(key, clonedArr);
+								$cloneObj->_getAttr()->put($key, $clonedArr);
 							} else {
-								cloneObj._getAttr().put(key, obj);
+								$cloneObj->_getAttr()->put($key, $obj);
 							}
 						}
+						
 					}
 						
 					//processing Prop map
-					if(cloneDepth > 0) {
-						for(Map.Entry<String, Object> ent : _getProp().entrySet()) {
-							String key = ent.getKey();
-							Object obj = ent.getValue();
-							if(obj == null) {
-								cloneObj._getProp().put(key, null);
-							} else if(obj instanceof ConfigBean) {
-								ConfigBean cb = (ConfigBean) obj;
-								if(cb == this) {
-									System.out.println("Warining: loop in config bean "+this+" for prop "+key+", ignoring...");
+					if($cloneDepth > 0) {
+						$itr2 = $this->_getProp()->valueIterator();
+						while($itr2->hasNext()) {
+							$ent2 = $itr2->nextEntry();
+						
+						//for(Map.Entry<String, Object> ent : _getProp().entrySet()) {
+							$key = $ent2->getKey();
+							$obj = $ent2->getValue();
+							if($obj == null) {
+								$cloneObj->_getProp()->put($key, null);
+							} else if($obj instanceof ConfigBean) {
+								$cb = $obj;
+								if($cb === $this) {
+									echo "Warining: loop in config bean " . $this . " for prop " . $key . ", ignoring...";
 									continue;
 								}
-								if(cb._getParent() == null) {
-									ConfigBean clonedCb = cb.cloneSubtree(cloneDepth - 1);
-									cloneObj._getProp().put(key, clonedCb);
-								} else if(cb._getParent().equals(this)) {
-									ConfigBean clonedCb = cb.cloneSubtree(cloneObj, cloneDepth - 1);
-									cloneObj._getProp().put(key, clonedCb);
+								if($cb->_getParent() == null) {
+									$clonedCb = $cb->cloneSubtree($cloneDepth - 1);
+									$cloneObj->_getProp()->put($key, $clonedCb);
+								} else if(cb._getParent()/*.equals(*/=== $this/*)*/) {
+									$clonedCb = $cb->cloneSubtree($cloneObj, $cloneDepth - 1);
+									$cloneObj->_getProp()->put($key, $clonedCb);
 								} else {
-									System.out.println("Warning: could not find proper parent for prop "+key+", ignoring...");
+									echo "Warning: could not find proper parent for prop " . $key . ", ignoring...";
 								}
-							} else if(obj instanceof ConfigBean[]) {
-								ConfigBean[] cbArr = (ConfigBean[]) obj;
-								ArrayList<ConfigBean> list = new ArrayList<ConfigBean>();
-								for(ConfigBean cb : cbArr) {
-									if(cb == this) {
-										System.out.println("Warining: loop in config bean "+this+" for prop "+key+", ignoring...");
+							} else if(/*obj instanceof ConfigBean[]*/Utils::isArrayOfType($obj, new ReflectionClass('finalconfigclasses\cfg\ConfigBean'))) {
+								$cbArr = $obj;
+								/*ArrayList<ConfigBean>*/$list = new ArrayList/*<ConfigBean>*/();
+								foreach($cbArr as $cb) {
+									if($cb === $this) {
+										echo "Warining: loop in config bean " . $this . " for prop " . $key . ", ignoring...";
 										continue;
 									}
-									if(cb._getParent() == null) {
-										ConfigBean clonedCb = cb.cloneSubtree(cloneDepth - 1);
-										list.add(clonedCb);
-									} else if(cb._getParent().equals(this)) {
-										ConfigBean clonedCb = cb.cloneSubtree(cloneObj, cloneDepth - 1);
-										list.add(clonedCb);
+									if($cb->_getParent() == null) {
+										$clonedCb = $cb->cloneSubtree($cloneDepth - 1);
+										$list->add(new \Mysidia\Resource\Native\Object($clonedCb));
+									} else if($cb->_getParent()/*.equals(*/ === this/*)*/) {
+										$clonedCb = $cb->cloneSubtree($cloneObj, $cloneDepth - 1);
+										$list.add(new \Mysidia\Resource\Native\Object(clonedCb));
 									} else {
-										System.out.println("Warning: could not find proper parent for prop "+key+", ignoring...");
+										echo "Warning: could not find proper parent for prop " . $key . ", ignoring...";
 									}
 								}
-								Object clonedCbArr = Array.newInstance(obj.getClass().getComponentType(), list.size());
-								for(int i = 0 ; i < list.size(); i++)
-									Array.set(clonedCbArr, i, list.get(i));
-									cloneObj._getProp().put(key, clonedCbArr);
+								$clonedCbArr = array();//Array.newInstance(obj.getClass().getComponentType(), list.size());
+								for($i = 0 ; $i < $list->size(); $i++)
+									$clonedCbArr[i] = $list->get($i)->value();
+									//Array.set(clonedCbArr, i, list.get(i));
+									$cloneObj->_getProp()->put($key, $clonedCbArr);
 							}
 						}
 					}
 						
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (\Exception $e) {
+			echo $e;
+			//e.printStackTrace();
 		}
-		return cloneObj;
+		return $cloneObj;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -551,7 +561,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	
 	public function accept(ConfigBeanVisitor $visitor) {
 		if ($visitor == null) {
-			throw new \InvalidArgumentException(("Visitor must not be null!");
+			throw new \InvalidArgumentException("Visitor must not be null!");
 		}
 		if (!$visitor->terminate()) {
 			$visitor->visitBeforeChildren($this);
@@ -566,20 +576,20 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 			}
 			$itr = $snapshot->valueIterator();
 			//$values = $snapshot->values();
-			//here!!!
-			for(Object obj : values) {
-				if(obj instanceof ConfigBean) {
-					((ConfigBean) obj).accept(visitor);
-				} else if(obj instanceof ConfigBean[]) {
-					ConfigBean[] arrCopy;
-					readLock();
+			while($itr->hasNext()) {
+				$obj = $itr->next();
+				if($obj instanceof ConfigBean) {
+					$obj->accept($visitor);
+				} else if(Utils::isArrayOfType($obj, new ReflectionClass('finalconfigclasses\cfg\ConfigBean'))/*obj instanceof ConfigBean[]*/) {
+					$arrCopy;
+					$this->readLock();
 					try {
-						arrCopy = (ConfigBean[])(((ConfigBean[])obj).clone());
+						$arrCopy = Utils::cloneArray($obj);/*(ConfigBean[])(((ConfigBean[])obj).clone());*/
 					} finally {
-						readUnlock();
+						$this->readUnlock();
 					}
-					for(ConfigBean cb : arrCopy) {
-						cb.accept(visitor);
+					foreach($arrCopy as $cb) {
+						$cb->accept($visitor);
 					}
 				}
 			}
@@ -651,131 +661,135 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	    //
 	    ////////////////////////////////////////////////////////////////////////////
 		
-		@SuppressWarnings("unchecked")
-		protected static final ArrayList arrayToList(Object array) {
-			ArrayList list = new ArrayList();
-			if(array != null) {
-				int length = Array.getLength(array);
-				for(int i = 0; i < length; i++)
-					list.add(Array.get(array, i));
+		protected static final function arrayToList($array) {
+			$list = new ArrayList();
+			if($array != null) {
+				$length = count($array);
+				for($i = 0; $i < $length; $i++)
+					$list->add(new \Mysidia\Resource\Native\Object($array[$i]));
 			}
-			return list;
+			return $list;
 		}
 		
-		protected static final Object listToArray(ArrayList list, Class componentType) {
-			Object arr = Array.newInstance(componentType, list.size());
-			for(int i = 0; i < list.size(); i++)
-				Array.set(arr, i, list.get(i));
-			return arr;
+		protected static final function listToArray(ArrayList $list/*, Class componentType*/) {
+			$arr = array();//Array.newInstance(componentType, list.size());
+			for($i = 0; $i < $list->size(); $i++)
+				$arr[$i] = $list->get($i)->value();
+				//Array.set(arr, i, list.get(i));
+			return $arr;
 		}
 		
 		//this methods works by 'equality of references' not 'equality of values'.
-		protected static final <T> int indexOf(ArrayList<T> list, T obj) {
-			int idx = -1;		
-			for(int i = 0; i < list.size(); i++) {
-				T elem = list.get(i);			
-				if(elem == obj) {//reference equality...
-					idx = i;
+		protected static final function indexOf(ArrayList $list, $obj) {
+			$idx = -1;		
+			for($i = 0; $i < $list->size(); $i++) {
+				$elem = $list->get($i)->value();			
+				if($elem === $obj) {//reference equality...
+					$idx = $i;
 					break;
 				}
 			}
-			return idx;
+			return $idx;
 		}
 		
-		protected static final String eval(String localLocPrefix, String ct, String name) {
-			StringBuilder sb = new StringBuilder();		
-			if(localLocPrefix != null) {
-				sb.append(localLocPrefix);
-				sb.append('/');
+		protected static final function eval($localLocPrefix, $ct, $name) {
+			$result = "";
+			if($localLocPrefix != null) {
+				$result .= localLocPrefix;
+				$result .= '/';
 			}
-			sb.append(ct);
-			if(name != null) {
-				sb.append("[@name='");
-				sb.append(name);
-				sb.append("']");
+			$result .= ct;
+			if($name != null) {
+				$result .= "[@name='";
+				$result .= $name;
+				$result .= "']";
 			}
-			return sb.toString();
+			return $result;
 		}
 		
-		protected static final Object typedArr(String[] arr, Class type) {
-			if(boolean.class.equals(type)) {
-				boolean[] result = new boolean[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					result[i] = Boolean.parseBoolean(arr[i]);
-				return result;
+		protected static final function typedArr($arr, $type) {
+			if("boolean" === type) {
+				$result = array();//new boolean[count($arr)];
+				for($i = 0; $i < count($arr); $i++)
+					$result[$i] = Utils::parseBoolean($arr[$i]);
+				return $result;
 			}
-			if(char.class.equals(type)) {
-				char[] result = new char[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					result[i] = arr[i].charAt(0);
-				return result;			
+			if("char" === type) {
+				$result = array();//new char[arr.length];
+				for($i = 0; $i < count($arr); $i++)
+					$result[$i] = $arr[$i][0];
+				return $result;			
 			}
 	//		if("byte".equals(type)) {
 	//				return "getByte";
 	//		}
-			if(short.class.equals(type)) {
+			/*if(short.class.equals(type)) {
 				short[] result = new short[arr.length];
 				for(int i = 0; i < arr.length; i++)
 					result[i] = Short.parseShort(arr[i]);
 				return result;			
+			}*/
+			if("int" === type) {
+				$result = array();//new int[arr.length];
+				for($i = 0; $i < count($arr); $i++)
+					$result[$i] = (int)$arr[$i];
+				return $result;			
 			}
-			if(int.class.equals(type)) {
-				int[] result = new int[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					result[i] = Integer.parseInt(arr[i]);
-				return result;			
-			}
+			/*
 			if(long.class.equals(type)) {
 				long[] result = new long[arr.length];
 				for(int i = 0; i < arr.length; i++)
 					result[i] = Long.parseLong(arr[i]);
 				return result;	
+			}*/
+				
+			if("float" === type) {
+				$result = array();//new float[arr.length];
+				for($i = 0; $i < count($arr); $i++)
+					$result[$i] = (float)$arr[$i];
+				return $result;
 			}
-			if(float.class.equals(type)) {
-				float[] result = new float[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					result[i] = Float.parseFloat(arr[i]);
-				return result;
-			}
+			/*
 			if(double.class.equals(type)) {
 				double[] result = new double[arr.length];
 				for(int i = 0; i < arr.length; i++)
 					result[i] = Double.parseDouble(arr[i]);
 				return result;
-			}
+			}*/
 			///////////////////////////////////
-			if(Boolean.class.equals(type)) {
-				Boolean[] result = new Boolean[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					if(arr[i] != null)
-						result[i] = Boolean.valueOf(arr[i]);
-				return result;
+			if("Boolean" === type) {
+				$result = array();//new Boolean[arr.length];
+				for($i = 0; $i < count($arr); $i++)
+					if($arr[$i] != null)
+						$result[$i] = new \Mysidia\Resource\Native\Boolean(Utils::parseBoolean($arr[$i]));
+				return $result;
 			}
-			if(Character.class.equals(type)) {
-				Character[] result = new Character[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					if(arr[i] != null)
-						result[i] = Character.valueOf(arr[i].charAt(0));
-				return result;			
+			if("Character" === type) {
+				$result = array();//new Character[arr.length];
+				for($i = 0; $i < count($arr); $i++)
+					if($arr[$i] != null)
+						$result[$i] = new \Mysidia\Resource\Native\Char($arr[$i][0]);
+				return $result;			
 			}
 	//		if("byte".equals(type)
 	//				|| "Byte".equals(type)) {
 	//				return "getByte";
 	//		}
-			if(Short.class.equals(type)) {
+			/*if(Short.class.equals(type)) {
 				Short[] result = new Short[arr.length];
 				for(int i = 0; i < arr.length; i++)
 					if(arr[i] != null)
 						result[i] = Short.valueOf(arr[i]);
 				return result;			
+			}*/
+			if("Integer" === type) {
+				$result = array();//new Integer[arr.length];
+				for($i = 0; $i < count($arr); $i++)
+					if ($arr[$i] != null)
+						$result[$i] = new \Mysidia\Resource\Native\Integer((int)$arr[$i]);
+				return $result;			
 			}
-			if(Integer.class.equals(type)) {
-				Integer[] result = new Integer[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					if (arr[i] != null)
-						result[i] = Integer.valueOf(arr[i]);
-				return result;			
-			}
+			/*
 			if(Long.class.equals(type)) {
 				Long[] result = new Long[arr.length];
 				for(int i = 0; i < arr.length; i++)
@@ -783,33 +797,40 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 						result[i] = Long.valueOf(arr[i]);
 				return result;	
 			}
-			if(Float.class.equals(type)) {
-				Float[] result = new Float[arr.length];
-				for(int i = 0; i < arr.length; i++)
-					if (arr[i] != null)
-						result[i] = Float.valueOf(arr[i]);
-				return result;
+			*/
+			if("Float" === type) {
+				$result = array();//new Float[arr.length];
+				for($i = 0; $i < count($arr); $i++)
+					if ($arr[$i] != null)
+						$result[$i] = new \Mysidia\Resource\Native\Float((float)$arr[$i]);
+				return $result;
 			}
+			/*
 			if(Double.class.equals(type)) {
 				Double[] result = new Double[arr.length];
 				for(int i = 0; i < arr.length; i++)
 					if (arr[i] != null)
 						result[i] = Double.valueOf(arr[i]);
 				return result;
-			}		
-			if(String.class.equals(type)) {
-				return arr;
+			}	
+			*/	
+			if("String" === type) {
+				return $arr;
 			}
 			return null;
 		}
 		
-		private static final HashMap<String, Object> createDP(final HashMap<String, Object> defValue) {
-			if(defValue == null)
+		private static final function createDP(HashMap $defValue) {
+			if($defValue == null)
 				return null;
-			HashMap<String, Object> result = new HashMap<String, Object>();
-			for(String key : defValue.keySet()) {
+			$result = new HashMap();
+			$itr = $defValue->valueIterator();
+			while($itr->hasNext()) {
+				$ent = $itr->nextEntry();
+			
+			//for(String key : defValue.keySet()) {
 				//all properties are dynamic
-				result.put(key, Boolean.TRUE);
+				$result.put($ent->getKey(), new \Mysidia\Resource\Native\Boolean(true));
 			}
 			return result;
 		}

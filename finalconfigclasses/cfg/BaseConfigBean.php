@@ -157,7 +157,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	public final function isSet($propertyName) {
 		$this->readLock();
 		try {
-			return $this->_isSet(propertyName);
+			return $this->_isSet($propertyName);
 		} finally {
 			$this->readUnlock();
 		}

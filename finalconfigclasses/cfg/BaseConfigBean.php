@@ -12,16 +12,17 @@ use Mysidia\Resource\Collection\ArrayList;
 use finalconfigclasses\bean\misc\PropertyChangeListener;
 use finalconfigclasses\cfg\misc\NodeChangeListener;
 use finalconfigclasses\bean\BeanUpdateListener;
+use Mysidia\Resource\Native\Object;
 
 abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	/** The unique ID of bean(needed for clone and merge algorithms). */
 	private $beanID;
 	/** Contains the value of simple attributes. */
-	private $attr = new HashMap();
+	private $attr;
 	/** Contains the reference to other related ConfigBeans. */
-	private $prop = new HashMap();
+	private $prop;
 	/** Contains whether attribute/property has been explicitly set in this bean. */
-	private $setProp = new HashMap();
+	private $setProp;
 	/** Contains default values for attribute/property. */
 	private $defValue;
 	/** Whether change to attribute/property is appliable at run-time or needs system restart. */
@@ -63,9 +64,14 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 			//final ReentrantReadWriteLock propertiesLock,
 			$document,
 			$name,
-			$keyPrefix) {		
-				if(beanID == null)
+			$keyPrefix) {
+				$this->attr = new HashMap();
+				$this->prop = new HashMap();
+				$this->setProp = new HashMap();
+				
+				if($beanID == null)
 					throw new \InvalidArgumentException("BeanID should not be null.");
+				
 				$this->beanID = $beanID;
 				$this->defValue = $defValue;
 				//setting all properties to their defualt values
@@ -84,7 +90,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 				$this->document = $document;
 				$this->name = $name; 
 				$this->keyPrefix = $keyPrefix;
-				
+
 				$this->changeSupport = new PropertyChangeSupport($this);
 				$this->nodeSupport = new NodeChangeSupport($this);
 				$this->updateSupport = new BeanUpdateSupport($this);
@@ -368,10 +374,10 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 									}
 									if($cb->_getParent() == null) {
 										$clonedCb = $cb->cloneSubtree($cloneDepth - 1);
-										$list->add(new \Mysidia\Resource\Native\Object($clonedCb));
+										$list->add(new ObjectWrapper($clonedCb));
 									} else if($cb->_getParent()/*.equals(*/ === this/*)*/) {
 										$clonedCb = $cb->cloneSubtree($cloneObj, $cloneDepth - 1);
-										$list.add(new \Mysidia\Resource\Native\Object(clonedCb));
+										$list.add(new ObjectWrapper(clonedCb));
 									} else {
 										echo "Warning: could not find proper parent for prop " . $key . ", ignoring...";
 									}
@@ -669,7 +675,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 			if($array != null) {
 				$length = count($array);
 				for($i = 0; $i < $length; $i++)
-					$list->add(new \Mysidia\Resource\Native\Object($array[$i]));
+					$list->add(new ObjectWrapper($array[$i]));
 			}
 			return $list;
 		}
@@ -838,4 +844,17 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 			return result;
 		}
 		
+}
+
+class ObjectWrapper extends Object {
+	/**
+	 * Coerces and sets value
+	 *
+	 * @param mixed    $value
+	 * @param null|int $flags
+	 */
+	public function __construct($value = null, $flags = null)
+	{
+		parent::__construct($value, $flags);
+	}
 }

@@ -14,13 +14,17 @@ use finalconfigclasses\cfg\ConfigBeanVisitor;
 use Mysidia\Resource\Utility\Hash;
 use Mysidia\Resource\Collection\HashMap;
 use Mysidia\Resource\Native\StringWrapper;
+use finalconfigclasses\cfg\gen\CacheConfigImpl;
 
+echo "hi\n";
 //require __DIR__ . '/../../vendor/autoload.php';
 spl_autoload_register(function($className)
 {
 
 	$namespace=str_replace("\\","/",__NAMESPACE__);
 	$className=str_replace("\\","/",$className);
+	$className = "../../" . $className;
+	echo $className;
 	$class="{$className}.php";
 	//if($class == 'finalconfigclasses/util/Threaded.php')
 	//	return ;
@@ -54,7 +58,8 @@ echo $x;
 echo "\n";
 
 class Y implements ConfigBean {
-	
+	
+
 	/**
 	 * {@inheritDoc}
 	 * @see \finalconfigclasses\cfg\ConfigBean::_getParent()
@@ -329,3 +334,16 @@ echo $cbeandiff;
 
 
 echo "\nresult=" . (Utils::isArrayOfType(array($y), new \ReflectionClass('finalconfigclasses\cfg\ConfigBean')));
+
+$defValue = new HashMap();
+//the default value for attributes
+$defValue->put(new \Mysidia\Resource\Native\StringWrapper("cacheSize"), new \Mysidia\Resource\Native\Integer(100));
+$defValue->put(new \Mysidia\Resource\Native\StringWrapper("cachePolicy"), new \Mysidia\Resource\Native\StringWrapper("LFU"));
+
+$dynaProp = new HashMap();
+//all attributes are dyanamic for this test
+$dynaProp->put(new \Mysidia\Resource\Native\StringWrapper("cacheSize"), new \Mysidia\Resource\Native\Boolean(true));
+$dynaProp->put(new \Mysidia\Resource\Native\StringWrapper("cachePolicy"), new \Mysidia\Resource\Native\Boolean(false));
+
+$map = new HashMap();
+$ccimpl = new CacheConfigImpl("beanid", $defValue, $dynaProp, /*$parent*/null, /*$propertiesFile*/null, /*$lockID*/"lockID", /*$document*/null, /*$name*/null, /*$keyPrefix*/null);

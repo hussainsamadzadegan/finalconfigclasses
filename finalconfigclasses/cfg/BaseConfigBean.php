@@ -9,6 +9,9 @@ use finalconfigclasses\bean\misc\BeanUpdateSupport;
 use finalconfigclasses\util\Utils;
 use finalconfigclasses\util\Collections;
 use Mysidia\Resource\Collection\ArrayList;
+use finalconfigclasses\bean\misc\PropertyChangeListener;
+use finalconfigclasses\cfg\misc\NodeChangeListener;
+use finalconfigclasses\bean\BeanUpdateListener;
 
 abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	/** The unique ID of bean(needed for clone and merge algorithms). */
@@ -79,12 +82,12 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 				//$this->propertiesLock = propertiesLock;
 				$this->propertiesFile = $propertiesFile;
 				$this->document = $document;
-				$this->name = $name;
+				$this->name = $name; 
 				$this->keyPrefix = $keyPrefix;
 				
-				$changeSupport = new PropertyChangeSupport($this);
-				$nodeSupport = new NodeChangeSupport($this);
-				$updateSupport = new BeanUpdateSupport($this);
+				$this->changeSupport = new PropertyChangeSupport($this);
+				$this->nodeSupport = new NodeChangeSupport($this);
+				$this->updateSupport = new BeanUpdateSupport($this);
 	}
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -397,7 +400,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	
 	protected final function _isSet($propertyName) {
 		$b = $this->setProp->get($propertyName);
-		return b == null ? false : b;
+		return $b == null ? false : $b;
 	}
 	
 	public final function _conditionalUnset($isUnsetUpdate, $propertyName) {
@@ -450,7 +453,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 		$oldVal = $this->getAttr($propertyName);
 		$this->setAttr($propertyName, $defVal);
 		$this->_markSet($propertyName, false);
-		return array(oldVal, defVal);
+		return array($oldVal, $defVal);
 	}
 	
 	protected final function firePropertyChange($propertyName, $oldVal,
@@ -524,7 +527,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	public final function addPropertyChangeListener(
 			PropertyChangeListener $propertychangelistener) {
 				$this->changeSupport->addPropertyChangeListener($propertychangelistener);
-	}
+	} 
 	
 	public final function removePropertyChangeListener(
 			PropertyChangeListener $propertychangelistener) {
@@ -581,7 +584,7 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 				if($obj instanceof ConfigBean) {
 					$obj->accept($visitor);
 				} else if(Utils::isArrayOfType($obj, new ReflectionClass('finalconfigclasses\cfg\ConfigBean'))/*obj instanceof ConfigBean[]*/) {
-					$arrCopy;
+					$arrCopy = null;
 					$this->readLock();
 					try {
 						$arrCopy = Utils::cloneArray($obj);/*(ConfigBean[])(((ConfigBean[])obj).clone());*/

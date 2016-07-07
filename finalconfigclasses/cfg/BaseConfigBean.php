@@ -12,9 +12,12 @@ use Mysidia\Resource\Collection\ArrayList;
 use finalconfigclasses\bean\misc\PropertyChangeListener;
 use finalconfigclasses\cfg\misc\NodeChangeListener;
 use finalconfigclasses\bean\BeanUpdateListener;
+use Mysidia\Resource\Native\Boolean;
+use Mysidia\Resource\Native\NullWrapper;
 use Mysidia\Resource\Native\Object;
+use Mysidia\Resource\Native\StringWrapper;
 
-abstract class BaseConfigBean extends \Threaded implements ConfigBean {
+abstract class BaseConfigBean /*extends \Threaded*/ implements ConfigBean {
 	/** The unique ID of bean(needed for clone and merge algorithms). */
 	private $beanID;
 	/** Contains the value of simple attributes. */
@@ -66,7 +69,9 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 			$name,
 			$keyPrefix) {
 				$this->attr = new HashMap();
+
 				$this->prop = new HashMap();
+		//$this->attr->putAll($this->prop);
 				$this->setProp = new HashMap();
 				
 				if($beanID == null)
@@ -129,8 +134,8 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	public final function getDefValue($propertyName) {
 		/*readLock();
 			try {*/
-		if ($this->defValue->containsKey($propertyName))
-			return $this->defValue->get($propertyName);
+		if ($this->defValue->containsKey(new StringWrapper($propertyName)))
+			return $this->defValue->get(new StringWrapper($propertyName))->value();
 			throw new \AssertionError("Unknown property '" . $propertyName . "'. Can not find its default value in map.");
 			/*} finally {
 				readUnlock();
@@ -140,8 +145,8 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	public final function isDynamic($propertyName) {
 		/*readLock();
 		 try {*/
-		if ($this->dynaProp->containsKey($propertyName))
-			return $this->dynaProp->get($propertyName);
+		if ($this->dynaProp->containsKey(new StringWrapper($propertyName)))
+			return $this->dynaProp->get(new StringWrapper($propertyName))->value();
 			throw new \AssertionError("Unknown property '" . $propertyName . "'. Can not find its dynamic flag in map.");
 			/*} finally {
 			 readUnlock();
@@ -202,19 +207,19 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	////////////////////////////////////////////////////////////////////////////
 	
 	protected final function readLock() {
-		$this->lock();
+		//$this->lock();
 	}
 	
 	protected final function readUnlock() {
-		$this->unlock();
+		//$this->unlock();
 	}
 	
 	protected final function writeLock() {
-		$this->lock();
+		//$this->lock();
 	}
 	
 	protected final function writeUnlock() {
-		$this->unlock();
+		//$this->unlock();
 	}
 	
 	public final function _getLockID() {
@@ -405,8 +410,8 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	////////////////////////////////////////////////////////////////////////////
 	
 	protected final function _isSet($propertyName) {
-		$b = $this->setProp->get($propertyName);
-		return $b == null ? false : $b;
+		$b = $this->setProp->get(new StringWrapper($propertyName));
+		return ($b == null || ($b instanceof NullWrapper)) ? false : $b->value();
 	}
 	
 	public final function _conditionalUnset($isUnsetUpdate, $propertyName) {
@@ -431,9 +436,9 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 		 * will show the user changes to config object.
 		 */
 		if ($set)
-			$this->setProp->put($propertyName, true);
+			$this->setProp->put(new StringWrapper($propertyName), new Boolean(true));
 			else
-				$this->setProp->put($propertyName, null);
+				$this->setProp->put(new StringWrapper($propertyName), /*null*/new NullWrapper());
 				//_setModified(true);
 	}
 	
@@ -445,9 +450,9 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 		 * for load() method changes on config object.
 		 */
 		if ($set)
-			$this->setProp->put($propertyName, true);
+			$this->setProp->put(new StringWrapper($propertyName), new Boolean(true));
 			else
-				$this->setProp->put($propertyName, null);
+				$this->setProp->put(new StringWrapper($propertyName), /*null*/new NullWrapper());
 	}
 	
 	protected final function _postSet($propertyName, $oldValue, $newValue) {
@@ -456,8 +461,8 @@ abstract class BaseConfigBean extends \Threaded implements ConfigBean {
 	
 	protected final function _unSet($propertyName) {
 		$defVal = $this->getDefValue($propertyName);
-		$oldVal = $this->getAttr($propertyName);
-		$this->setAttr($propertyName, $defVal);
+		$oldVal = $this->getAttr(new StringWrapper($propertyName))->value();
+		$this->setAttr(new StringWrapper($propertyName), new ObjectWrapper($defVal));
 		$this->_markSet($propertyName, false);
 		return array($oldVal, $defVal);
 	}

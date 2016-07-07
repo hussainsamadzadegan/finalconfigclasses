@@ -5,7 +5,7 @@ namespace finalconfigclasses\bean\misc;
 /**
  * A class which broadcast changes to interested listeners.
  */
-final class PropertyChangeSupport extends \Threaded
+final class PropertyChangeSupport /*extends \Threaded*/
 {
 
 	/**
@@ -46,15 +46,15 @@ final class PropertyChangeSupport extends \Threaded
 	public function addPropertyChangeListener(PropertyChangeListener $listener)
 	{
 		try {
-			$this->lock();
+			//!$this->lock();
 			$results = array_fill(0, count($this->listeners) + 1, NULL);
 			//new PropertyChangeListener[listeners.Length + 1];
-			for ($i = 0; i < count($this->listeners); $i++)
-				$results[i] = $this->listeners[i];
+			for ($i = 0; $i < count($this->listeners); $i++)
+				$results[$i] = $this->listeners[$i];
 			$results[count($this->listeners)] = $listener;
 			$this->listeners = $results;
 		} finally {
-			$this->unlock();
+			//!$this->unlock();
 		}
 
 	}
@@ -77,7 +77,7 @@ final class PropertyChangeSupport extends \Threaded
 	{
 
 		try {
-			$this->lock();
+			//!$this->lock();
 			$n = -1;
 			for ($i = 0; $i < count($this->listeners); $i++) {
 				if ($this->listeners[$i] === $listener) {
@@ -96,7 +96,7 @@ final class PropertyChangeSupport extends \Threaded
 			}
 			$this->listeners = $results;
 		} finally {
-			$this->unlock();
+			//!$this->unlock();
 		}
 	}
 
@@ -105,7 +105,7 @@ final class PropertyChangeSupport extends \Threaded
 				if ($oldValue != null && $newValue != null && $oldValue == $newValue) {
 					return;
 				}
-				firePropertyChange2(new PropertyChangeEvent($this->source, $propertyName,
+				$this->firePropertyChange2(new PropertyChangeEvent($this->source, $propertyName,
 						$oldValue, $newValue));
 	}
 
@@ -124,7 +124,7 @@ final class PropertyChangeSupport extends \Threaded
 	public function fireIndexedPropertyChange($propertyName, $index,
 			$oldValue, $newValue)
 	{
-		firePropertyChange2(new IndexedPropertyChangeEvent
+		$this->firePropertyChange2(new IndexedPropertyChangeEvent
 				($this->source, $propertyName, $oldValue, $newValue, $index));
 	}
 

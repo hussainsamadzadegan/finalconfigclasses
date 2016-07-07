@@ -4,7 +4,7 @@ namespace finalconfigclasses\cfg\misc;
 
 use finalconfigclasses\cfg\ConfigBean;
 
-final class NodeChangeSupport extends \Threaded {
+final class NodeChangeSupport /*extends \Threaded*/ {
 	/**
 	 * The source component for lifecycle events that we will fire.
 	 */
@@ -42,14 +42,14 @@ final class NodeChangeSupport extends \Threaded {
 	 */
 	public function addNodeChangeListener(NodeChangeListener $listener) {
 		try {
-			this-lock();
+			//!this-lock();
 			$results = array_fill(0, count($this->listeners) + 1, NULL);
 			for ($i = 0; $i < count(listeners); $i++)
 				$results[$i] = $this->listeners[$i];
 				$results[count($this->listeners)] = $listener;
 				$this->listeners = $results;
 		} finally {
-			$this->unlock();
+			//!$this->unlock();
 		}
 	}
 	
@@ -69,7 +69,7 @@ final class NodeChangeSupport extends \Threaded {
 	 */
 	public function removeNodeChangeListener(NodeChangeListener $listener) {
 		try {
-			$this-lock();
+			//!$this-lock();
 			$n = -1;
 			for ($i = 0; $i < count($this->listeners); $i++) {
 				if ($this->listeners[$i] === $listener) {
@@ -87,7 +87,7 @@ final class NodeChangeSupport extends \Threaded {
 				}
 				$this->listeners = $results;
 		} finally {
-			$this-unlock();
+			//!$this-unlock();
 		}
 	}
 	
@@ -96,7 +96,7 @@ final class NodeChangeSupport extends \Threaded {
 				if ($oldValue != null && $newValue != null && $oldValue == $newValue) {
 					return;
 				}
-				fireNodeChange2(new NodeChangeEvent($this->source, $propertyName,
+				$this->fireNodeChange2(new NodeChangeEvent($this->source, $propertyName,
 						$oldValue, $newValue));
 	}
 	
@@ -114,7 +114,7 @@ final class NodeChangeSupport extends \Threaded {
 	
 	public function fireIndexedNodeChange($propertyName, $index,
 			$oldValue, $newValue) {
-				fireNodeChange2(new IndexedNodeChangeEvent($this->source, $propertyName,
+				$this->fireNodeChange2(new IndexedNodeChangeEvent($this->source, $propertyName,
 						$oldValue, $newValue, $index));
 	}
 	

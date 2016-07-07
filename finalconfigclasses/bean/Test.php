@@ -3,6 +3,7 @@
 namespace finalconfigclasses\bean;
 
 use finalconfigclasses\bean\BeanDiff;
+use finalconfigclasses\bean\misc\PropertyChangeEvent;
 use finalconfigclasses\bean\misc\PropertyChangeSupport;
 use finalconfigclasses\bean\misc\BeanUpdateSupport;
 use finalconfigclasses\cfg\ConfigBeanDiff;
@@ -24,7 +25,6 @@ spl_autoload_register(function($className)
 	$namespace=str_replace("\\","/",__NAMESPACE__);
 	$className=str_replace("\\","/",$className);
 	$className = "../../" . $className;
-	echo $className;
 	$class="{$className}.php";
 	//if($class == 'finalconfigclasses/util/Threaded.php')
 	//	return ;
@@ -345,5 +345,18 @@ $dynaProp = new HashMap();
 $dynaProp->put(new \Mysidia\Resource\Native\StringWrapper("cacheSize"), new \Mysidia\Resource\Native\Boolean(true));
 $dynaProp->put(new \Mysidia\Resource\Native\StringWrapper("cachePolicy"), new \Mysidia\Resource\Native\Boolean(false));
 
-$map = new HashMap();
 $ccimpl = new CacheConfigImpl("beanid", $defValue, $dynaProp, /*$parent*/null, /*$propertiesFile*/null, /*$lockID*/"lockID", /*$document*/null, /*$name*/null, /*$keyPrefix*/null);
+class MyPCL implements  PropertyChangeListener {
+
+	public function propertyChange(PropertyChangeEvent $evt)
+	{
+		echo "\n" . $evt->getPropertyName() . " (" . $evt->getOldValue() . " => " . $evt->getNewValue() . ")";
+	}
+}
+
+$mypcl = new MyPCL();
+$ccimpl->addPropertyChangeListener($mypcl);
+echo "\n" . $ccimpl->getCachePolicy();
+$ccimpl->setCachePolicy("LRU");
+echo "\n" . $ccimpl->getCachePolicy();
+

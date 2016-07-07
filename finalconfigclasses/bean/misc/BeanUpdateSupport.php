@@ -5,7 +5,7 @@ namespace finalconfigclasses\bean\misc;
 use finalconfigclasses\bean\BeanUpdateListener;
 use finalconfigclasses\bean\BeanUpdateEvent;
 
-final class BeanUpdateSupport extends \Threaded
+final class BeanUpdateSupport /*extends \Threaded*/
 {
 
 	/**
@@ -47,7 +47,7 @@ final class BeanUpdateSupport extends \Threaded
 	public function addBeanUpdateListener(BeanUpdateListener $listener)
 	{
 		try {
-			$this->lock();
+			//!$this->lock();
 			$results = array_fill(0, count($this->listeners) + 1 , NULL);
 			//new BeanUpdateListener[listeners.Length + 1];
 			for ($i = 0; $i < count($this->listeners); $i++)
@@ -55,7 +55,7 @@ final class BeanUpdateSupport extends \Threaded
 			$results[count($this->listeners)] = $listener;
 			$this->listeners = $results;
 		} finally {
-			$this->unlock();
+			//!$this->unlock();
 		}
 
 	}
@@ -78,7 +78,7 @@ final class BeanUpdateSupport extends \Threaded
 	{
 
 		try {
-			$this->lock();
+			//!$this->lock();
 			$n = -1;
 			for ($i = 0; $i < count($this->listeners); $i++) {
 				if ($this->listeners[$i] === $listener) {
@@ -97,7 +97,7 @@ final class BeanUpdateSupport extends \Threaded
 				}
 				$this->listeners = $results;
 		} finally {
-			$this->unlock();
+			//!$this->unlock();
 		}
 	}
 

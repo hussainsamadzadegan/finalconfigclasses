@@ -69,9 +69,7 @@ abstract class BaseConfigBean /*extends \Threaded*/ implements ConfigBean {
 			$name,
 			$keyPrefix) {
 				$this->attr = new HashMap();
-
 				$this->prop = new HashMap();
-		//$this->attr->putAll($this->prop);
 				$this->setProp = new HashMap();
 				
 				if($beanID == null)
@@ -162,7 +160,7 @@ abstract class BaseConfigBean /*extends \Threaded*/ implements ConfigBean {
 			$this->writeUnlock();
 		}
 		//calling listeners out of lock block to avoid dead-lock.
-		firePropertyChange($propertyName, $objArr[0], $objArr[1]);
+		$this->firePropertyChange($propertyName, $objArr[0], $objArr[1]);
 	}
 	
 	public final function isSet($propertyName) {

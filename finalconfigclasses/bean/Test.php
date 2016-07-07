@@ -359,4 +359,7 @@ $ccimpl->addPropertyChangeListener($mypcl);
 echo "\n" . $ccimpl->getCachePolicy();
 $ccimpl->setCachePolicy("LRU");
 echo "\n" . $ccimpl->getCachePolicy();
+echo "\n isDynamic = " . ($ccimpl->isDynamic("cachePolicy") == false);
 
+$ccimpl->unSet("cachePolicy");
+echo "\n" . $ccimpl->getCachePolicy();

@@ -1,6 +1,6 @@
 <?php
 
-namespace finalconfigclasses\cfg;a
+namespace finalconfigclasses\cfg;b
 
 use finalconfigclasses\bean\DiffableBean;
 use finalconfigclasses\bean\SettableBean;

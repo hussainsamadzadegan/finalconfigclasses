@@ -10,7 +10,7 @@ use finalconfigclasses\cfg\misc\NodeChangeListener;
 
 interface ConfigBean extends DiffableBean, SettableBean/*, ICloneable, ISerializable*/
 {
-	public function _getParent();zy
+	public function _getParent();zy8
 
 	public function _getXPath();
 
